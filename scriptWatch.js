@@ -21,15 +21,16 @@ var stopwatchController = (function(){
 			// get current time
 			const targetDate = new Date();
 			const dateAtStart = new Date();			
-			console.log(`estimage duration of task: ${data.time.estimatedDuration}`);
+			console.log(`estimate duration of task: ${data.time.estimatedDuration}`);
 			data.time.dateAtStart = dateAtStart;
 
 
 			// add to the current time a set time for completion (data.time.estimatedDuration)
-			targetDate.setSeconds(targetDate.getSeconds() + estimate);
+			this.addToDate(targetDate,estimate);
 
 			// add the resulting time to data storage
 			data.time.targetDate = targetDate;
+			console.log(`target date: ${targetDate}`)
 		},
 
 		getNewTargetDate: function() {
@@ -125,11 +126,18 @@ var globalController = (function(stpwchCtrl, UICtrl){
 		document.querySelector(DOM.timerButtons.resume).addEventListener("click", resumeTimer);		
 	};
 
+		//Pause function
+		var pause = function(countDown) {
+			console.log(`PAUSE`);
+			clearInterval(countDown);
+			pauseTimer();
+		}	
+	
+		var pauseTimer = function() {
+			stpwchCtrl.getPausedDate();
+		};
+
 	var startTimer = function() {
-
-		document.querySelector(DOM.timerButtons.pause).addEventListener("click", pause);
-
-
 		// get the target date and save that specific date in storage of a data
 		stpwchCtrl.getTargetDate(timeCompletion);
 
@@ -138,28 +146,13 @@ var globalController = (function(stpwchCtrl, UICtrl){
 		// get the difference between the current date and the target date every second and display the result in the console
 		const countDown = setInterval(function() {stpwchCtrl.getDifference(controllerData.time.targetDate);}, 1000); 
 
-		function pause() {
-			console.log(`PAUSE`);
-			clearInterval(countDown);
-
-			pauseTimer();
-		}
-
-
+		document.querySelector(DOM.timerButtons.pause).addEventListener("click", pause(countDown));
 	};
 
 
-
-	var pauseTimer = function() {
-		stpwchCtrl.getPausedDate();
-	};
 
 
 	var resumeTimer = function() {
-
-		document.querySelector(DOM.timerButtons.pause).addEventListener("click", pauseFromResume);
-
-
 
 		// get the time that happened during user pause
 		const durationPause = stpwchCtrl.getDifference(controllerData.time.timeAtPause);
@@ -170,14 +163,10 @@ var globalController = (function(stpwchCtrl, UICtrl){
 		console.log(`new target date after pause: ${newTargetDate}`);
 
 		// start the timer again with the updated target date
-		const countDown = setInterval(function() {stpwchCtrl.getDifference(newTargetDate);}, 1000);
+		const countDown = setInterval(function() {stpwchCtrl.getDifference(newTargetDate);}, 1000);	
 
-		function pauseFromResume() {
-			console.log(`PAUSE`);
-			clearInterval(countDown);
+		document.querySelector(DOM.timerButtons.pause).addEventListener("click", pause(countDown));
 
-			pauseTimer();
-		}		
 
 	};
 
